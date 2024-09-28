@@ -29,6 +29,9 @@ type Clock struct {
 
 	Height, Width int
 
+	// no of partitions
+	xpart, ypart int
+
 	// starting offset
 	xstart, ystart int
 	// running offset
@@ -38,15 +41,13 @@ type Clock struct {
 	xstep, ystep int
 
 	// time interval between steps
-	interval int
+	interval time.Duration
 	counter  int
 }
 
-func NewClock(height, width int) *Clock {
-	// width and height are divided into 12 and 5 partitions
-	// respectively to represent a minute.
-	x := width / 12
-	y := height / 5
+func NewClock(height, width, xpart, ypart int, interval time.Duration) *Clock {
+	x := width / xpart
+	y := height / ypart
 
 	c := &Clock{
 		Block: *ui.NewBlock(),
@@ -54,14 +55,17 @@ func NewClock(height, width int) *Clock {
 		Height: height,
 		Width:  width,
 
-		xstart: x,
-		// spaces out the 5 horizontal partitions more evenly
-		ystart: int(math.Round((float64(y) / 2) + 0.5)),
+		xpart: xpart,
+		ypart: ypart,
+
+		// spaces out the partitions more evenly
+		xstart: int(math.Round(float64(x)/2) + 0.5),
+		ystart: int(math.Round(float64(y)/2) + 0.5),
 
 		xstep: x,
 		ystep: y,
 
-		interval: 1,
+		interval: interval,
 		counter:  0,
 	}
 
@@ -81,14 +85,14 @@ func NewClock(height, width int) *Clock {
 }
 
 func (c *Clock) Resize(width, height int) {
-	x := width / 12
-	y := height / 5
+	x := width / c.xpart
+	y := height / c.ypart
 
 	c.Height = height
 	c.Width = width
 
-	c.xstart = x
-	c.ystart = int(math.Round((float64(y) / 2) + 0.5))
+	c.xstart = int(math.Round(float64(x)/2) + 0.5)
+	c.ystart = int(math.Round(float64(y)/2) + 0.5)
 
 	c.xstep = x
 	c.ystep = y
@@ -154,11 +158,11 @@ func main() {
 	defer ui.Close()
 
 	width, height := ui.TerminalDimensions()
-	clock := NewClock(height, width)
+	clock := NewClock(height, width, 60, 24, time.Hour)
 	ui.Render(clock)
 
 	uiEvents := ui.PollEvents()
-	ticker := time.NewTicker(time.Duration(clock.interval) * time.Second).C
+	ticker := time.NewTicker(time.Second).C
 	for {
 		select {
 		case e := <-uiEvents:
