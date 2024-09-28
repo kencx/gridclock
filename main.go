@@ -20,7 +20,7 @@ const (
 	TCORNER      = '┳'
 	XCORNER      = '╋'
 
-	CLOCK_FORMAT = "15:04:05"
+	CLOCK_FORMAT = "2006-01-02 15:04:05"
 )
 
 type Clock struct {
