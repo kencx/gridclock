@@ -112,14 +112,23 @@ func (c *Clock) Draw(buf *ui.Buffer) {
 	top += minY
 
 	// second lines
-	secX := (c.Max.X - left) * ((now.Second() / 5) + 1) / (12 + 1)
-	secY := (c.Max.Y - top) * ((now.Second() % 5) + 1) / (5 + 1)
+	second := now.Second()
+	secX := (c.Max.X - left) * ((second / 5) + 1) / (12 + 1)
+	secY := (c.Max.Y - top) * ((second % 5) + 1) / (5 + 1)
 
 	drawHLine(buf, HLINE, left+secX, c.Max.X, top+secY)
 	drawVLine(buf, VLINE, top, c.Max.Y, left+secX)
 
 	buf.SetCell(ui.NewCell(RCORNER), image.Point{left + secX, top + secY})
 	buf.SetCell(ui.NewCell(TCORNER), image.Point{left + secX, top})
+
+	var secStr string
+	if second < 10 {
+		secStr = fmt.Sprintf("0%d", second)
+	} else {
+		secStr = strconv.Itoa(second)
+	}
+	buf.SetString(secStr, ui.NewStyle(ui.ColorWhite), image.Point{left - 2, top})
 }
 
 func main() {
