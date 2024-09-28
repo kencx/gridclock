@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"image"
 	"log"
@@ -24,10 +25,11 @@ const (
 
 type Clock struct {
 	ui.Block
+	Mode12 bool
 }
 
-func NewClock(height, width int) *Clock {
-	c := &Clock{Block: *ui.NewBlock()}
+func NewClock(height, width int, mode12 bool) *Clock {
+	c := &Clock{Block: *ui.NewBlock(), Mode12: mode12}
 	c.SetRect(0, 0, width, height)
 	return c
 }
@@ -77,12 +79,14 @@ func (c *Clock) Draw(buf *ui.Buffer) {
 	drawHLine(buf, HLINE, left+3, c.Max.X, hourY)
 
 	var hourStr string
-	if hour > 12 {
+	if hour > 12 && !c.Mode12 {
 		hourStr = strconv.Itoa(hour)
-	} else if (hour % 12) < 10 {
-		hourStr = fmt.Sprintf("0%d", hour)
 	} else {
-		hourStr = strconv.Itoa(hour)
+		if (hour % 12) < 10 {
+			hourStr = fmt.Sprintf("0%d", hour)
+		} else {
+			hourStr = strconv.Itoa(hour)
+		}
 	}
 
 	buf.SetString(hourStr, ui.NewStyle(ui.ColorWhite), image.Point{left, hourY})
@@ -132,13 +136,18 @@ func (c *Clock) Draw(buf *ui.Buffer) {
 }
 
 func main() {
+	var mode12 bool
+
+	flag.BoolVar(&mode12, "12", false, "12h mode")
+	flag.Parse()
+
 	if err := ui.Init(); err != nil {
 		log.Fatalf("failed to start: %v", err)
 	}
 	defer ui.Close()
 
 	width, height := ui.TerminalDimensions()
-	clock := NewClock(height, width)
+	clock := NewClock(height, width, mode12)
 	ui.Render(clock)
 
 	uiEvents := ui.PollEvents()
