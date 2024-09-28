@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"image"
 	"log"
-	"math"
 	"time"
 
 	ui "github.com/gizak/termui/v3"
@@ -59,8 +58,10 @@ func NewClock(height, width, xpart, ypart int, interval time.Duration) *Clock {
 		ypart: ypart,
 
 		// spaces out the partitions more evenly
-		xstart: int(math.Round(float64(x)/2) + 0.5),
-		ystart: int(math.Round(float64(y)/2) + 0.5),
+		xstart: x/2 + 1,
+		ystart: y/2 + 1,
+		// xstart: int(math.Round(float64(x)/2) + 0.5),
+		// ystart: int(math.Round(float64(y)/2) + 0.5),
 
 		xstep: x,
 		ystep: y,
@@ -91,8 +92,8 @@ func (c *Clock) Resize(width, height int) {
 	c.Height = height
 	c.Width = width
 
-	c.xstart = int(math.Round(float64(x)/2) + 0.5)
-	c.ystart = int(math.Round(float64(y)/2) + 0.5)
+	c.xstart = x/2 + 1
+	c.ystart = y/2 + 1
 
 	c.xstep = x
 	c.ystep = y
@@ -103,11 +104,17 @@ func (c *Clock) Resize(width, height int) {
 }
 
 func (c *Clock) Tick() {
-	c.yoffset += c.ystep
+	if c.ystep < c.Height {
+		c.yoffset += c.ystep
+	}
+
 	if c.yoffset >= c.Height-1 {
 		c.yoffset = c.ystart
 
-		c.xoffset += c.xstep
+		if c.xstep < c.Width {
+			c.xoffset += c.xstep
+		}
+
 		if c.xoffset >= c.Width-1 {
 			c.xoffset = c.xstart
 		}
@@ -158,7 +165,7 @@ func main() {
 	defer ui.Close()
 
 	width, height := ui.TerminalDimensions()
-	clock := NewClock(height, width, 60, 24, time.Hour)
+	clock := NewClock(height, width, 60, 12, time.Hour)
 	ui.Render(clock)
 
 	uiEvents := ui.PollEvents()
