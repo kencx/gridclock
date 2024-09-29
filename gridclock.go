@@ -69,7 +69,7 @@ func (c *GridClock) Draw(buf *ui.Buffer) {
 		hourStr = strconv.Itoa(hour)
 	} else {
 		if (hour%12) < 10 && (hour%12) > 0 {
-			hourStr = fmt.Sprintf("0%d", hour)
+			hourStr = fmt.Sprintf("0%d", hour%12)
 		} else {
 			hourStr = strconv.Itoa(hour)
 		}
