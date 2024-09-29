@@ -31,6 +31,10 @@ func (c *StopWatch) Tick() {
 	ui.Render(c)
 }
 
+func (c *StopWatch) Reset() {
+	c.start = time.Now()
+}
+
 func (c *StopWatch) Draw(buf *ui.Buffer) {
 	var left, top int
 	c.Block.Draw(buf)

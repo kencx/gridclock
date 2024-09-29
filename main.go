@@ -23,6 +23,7 @@ const (
 type Clock interface {
 	Tick()
 	Resize(width, height int)
+	Reset()
 	ui.Drawable
 }
 
@@ -67,9 +68,13 @@ func main() {
 				if stopwatch {
 					ticker.Stop()
 				}
-			case "r":
+			case "t":
 				if stopwatch {
 					ticker.Reset(time.Millisecond)
+				}
+			case "r":
+				if stopwatch {
+					clock.Reset()
 				}
 			case "<Resize>":
 				payload := e.Payload.(ui.Resize)

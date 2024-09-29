@@ -30,6 +30,8 @@ func (c *GridClock) Tick() {
 	ui.Render(c)
 }
 
+func (c *GridClock) Reset() {}
+
 func drawVLine(buf *ui.Buffer, rune rune, y1, y2, x int) {
 	for i := y1; i < y2-1; i++ {
 		// skip drawing on border
