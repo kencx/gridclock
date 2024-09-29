@@ -58,8 +58,9 @@ func (c *StopWatch) Draw(buf *ui.Buffer) {
 
 	// sec lines
 	sec := int(elapsed.Seconds())
+	// reset sec after every min
 	if sec > 60 {
-		sec -= 60
+		sec -= ((sec / 60) * 60)
 	}
 
 	secX := (c.Max.X - left) * ((sec / 5) + 1) / (12 + 1)
