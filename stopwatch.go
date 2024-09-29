@@ -38,9 +38,6 @@ func (c *StopWatch) Draw(buf *ui.Buffer) {
 	t := <-c.ticker.C
 	elapsed := t.Sub(c.start)
 
-	title := fmt.Sprintf("%s", elapsed.String())
-	buf.SetString(title, ui.NewStyle(ui.ColorWhite), image.Point{c.Min.X + 2, c.Max.Y - 1})
-
 	// minute line
 	minute := int(elapsed.Minutes())
 	minY := c.Max.Y * (minute + 1) / (10 + 1)
@@ -61,8 +58,19 @@ func (c *StopWatch) Draw(buf *ui.Buffer) {
 
 	// sec lines
 	sec := int(elapsed.Seconds())
+	if sec > 60 {
+		sec -= 60
+	}
+
 	secX := (c.Max.X - left) * ((sec / 5) + 1) / (12 + 1)
 	secY := (c.Max.Y - top) * ((sec % 5) + 1) / (5 + 1)
+
+	if secX > c.Max.X {
+		secX -= c.Max.X
+	}
+	if secY > c.Max.Y {
+		secY -= c.Max.Y
+	}
 
 	drawHLine(buf, HLINE, left+secX, c.Max.X, top+secY)
 	drawVLine(buf, VLINE, top, c.Max.Y, left+secX)
@@ -99,4 +107,7 @@ func (c *StopWatch) Draw(buf *ui.Buffer) {
 
 	buf.SetCell(ui.NewCell(RCORNER), image.Point{left + msecX, top + msecY})
 	buf.SetCell(ui.NewCell(TCORNER), image.Point{left + msecX, top})
+
+	title := fmt.Sprintf("%d m %d s %d ms", minute, sec%60, millisecond%1000)
+	buf.SetString(title, ui.NewStyle(ui.ColorWhite), image.Point{c.Min.X + 2, c.Max.Y - 1})
 }
